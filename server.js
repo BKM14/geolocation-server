@@ -30,6 +30,8 @@ const io = new Server(server, {
 const redis = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
+  username: process.env.REDIS_USERNAME || '',
+  password: process.env.REDIS_PASSWORD || '',
   retryStrategy: (times) => {
     const delay = Math.min(times * 50, 2000);
     return delay;
@@ -77,10 +79,10 @@ io.on('connection', (socket) => {
       if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
         throw new Error('Invalid coordinates');
       }
-      
-      console.log({longitude, latitude, driverId});
+
+      console.log({ longitude, latitude, driverId });
       await redis.geoadd(REDIS_KEY_DRIVERS, longitude, latitude, driverId);
-      
+
       logger.info(`Location updated for driver ${driverId}: ${latitude}, ${longitude}`);
     } catch (error) {
       logger.error(`Location update error for driver ${driverId}:`, error);
